@@ -220,7 +220,7 @@ def load_schema(entity_name):
                     custom_schema[key] = value
 
         # Move properties to top level
-        custom_schema_top_level = {'property_{}'.format(k): v for k, v in custom_schema.items()}
+        custom_schema_top_level = {'property_{}'.format(k): v["properties"]["value"] for k, v in custom_schema.items()}
         schema['properties'].update(custom_schema_top_level)
 
         # Make properties_versions selectable and share the same schema.
@@ -340,7 +340,7 @@ def lift_properties_and_versions(record):
     for key, value in record.get('properties', {}).items():
         computed_key = "property_{}".format(key)
         versions = value.get('versions')
-        record[computed_key] = value
+        record[computed_key] = value["value"]
 
         if versions:
             if not record.get('properties_versions'):
