@@ -294,8 +294,7 @@ def get_params_and_headers(params):
             acquire_access_token_from_refresh_token()
         headers = {'Authorization': 'Bearer {}'.format(CONFIG['access_token'])}
     else:
-        params['hapikey'] = hapikey
-        headers = {}
+        headers = {'Authorization': 'Bearer {}'.format(hapikey)}
 
     if 'user_agent' in CONFIG:
         headers['User-Agent'] = CONFIG['user_agent']
