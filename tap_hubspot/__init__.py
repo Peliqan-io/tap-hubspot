@@ -451,6 +451,16 @@ def gen_request(STATE, tap_stream_id, url, params, path, more_key, offset_keys, 
     STATE = singer.clear_offset(STATE, tap_stream_id)
     singer.write_state(STATE)
 
+def peliqan_remove_unselected_properties_from_schema(schema, catalog):
+    for prop in list(schema["properties"].keys()):
+        found = False
+        for mdata in catalog["metadata"]:
+            if len(mdata["breadcrumb"])>0 and mdata["breadcrumb"][1]==prop:
+                found = True
+                if not mdata["metadata"]["selected"]:
+                    del schema["properties"][prop]
+        if not found:
+            LOGGER.info("Property not found in catalog: %s" % prop)
 
 def _sync_contact_vids(catalog, vids, schema, bumble_bee, bookmark_values, bookmark_key):
     if len(vids) == 0:
@@ -481,6 +491,7 @@ def sync_contacts(STATE, ctx):
     max_bk_value = start
     schema = load_schema("contacts")
 
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("contacts", schema, ["vid"], [bookmark_key], catalog.get('stream_alias'))
 
     url = get_url("contacts_all")
@@ -563,6 +574,8 @@ def sync_companies(STATE, ctx):
     start = utils.strptime_to_utc(get_start(STATE, "companies", bookmark_key, older_bookmark_key=bookmark_field_in_record))
     LOGGER.info("sync_companies from %s", start)
     schema = load_schema('companies')
+
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("companies", schema, ["companyId"], [bookmark_key], catalog.get('stream_alias'))
 
     # Because this stream doesn't query by `lastUpdated`, it cycles
@@ -647,6 +660,7 @@ def sync_deals(STATE, ctx):
               'properties' : []}
 
     schema = load_schema("deals")
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("deals", schema, ["dealId"], [bookmark_key], catalog.get('stream_alias'))
 
     # Check if we should  include associations
@@ -703,6 +717,8 @@ def sync_campaigns(STATE, ctx):
     catalog = ctx.get_catalog_from_id(singer.get_currently_syncing(STATE))
     mdata = metadata.to_map(catalog.get('metadata'))
     schema = load_schema("campaigns")
+
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("campaigns", schema, ["id"], catalog.get('stream_alias'))
     LOGGER.info("sync_campaigns(NO bookmarks)")
     url = get_url("campaigns_all")
@@ -721,6 +737,7 @@ def sync_entity_chunked(STATE, catalog, entity_name, key_properties, path):
     schema = load_schema(entity_name)
     bookmark_key = 'startTimestamp'
 
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema(entity_name, schema, key_properties, [bookmark_key], catalog.get('stream_alias'))
 
     start = get_start(STATE, entity_name, bookmark_key)
@@ -797,6 +814,8 @@ def sync_contact_lists(STATE, ctx):
     mdata = metadata.to_map(catalog.get('metadata'))
     schema = load_schema("contact_lists")
     bookmark_key = 'updatedAt'
+
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("contact_lists", schema, ["listId"], [bookmark_key], catalog.get('stream_alias'))
 
     start = get_start(STATE, "contact_lists", bookmark_key)
@@ -826,6 +845,7 @@ def sync_forms(STATE, ctx):
     schema = load_schema("forms")
     bookmark_key = 'updatedAt'
 
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("forms", schema, ["guid"], [bookmark_key], catalog.get('stream_alias'))
     start = get_start(STATE, "forms", bookmark_key)
     max_bk_value = start
@@ -884,6 +904,7 @@ def sync_owners(STATE, ctx):
     schema = load_schema("owners")
     bookmark_key = 'updatedAt'
 
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("owners", schema, ["ownerId"], [bookmark_key], catalog.get('stream_alias'))
     start = get_start(STATE, "owners", bookmark_key)
     max_bk_value = start
@@ -915,6 +936,7 @@ def sync_engagements(STATE, ctx):
     mdata = metadata.to_map(catalog.get('metadata'))
     schema = load_schema("engagements")
     bookmark_key = 'lastUpdated'
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema("engagements", schema, ["engagement_id"], [bookmark_key], catalog.get('stream_alias'))
     start = get_start(STATE, "engagements", bookmark_key)
 
@@ -963,6 +985,7 @@ def sync_deal_pipelines(STATE, ctx):
     catalog = ctx.get_catalog_from_id(singer.get_currently_syncing(STATE))
     mdata = metadata.to_map(catalog.get('metadata'))
     schema = load_schema('deal_pipelines')
+    peliqan_remove_unselected_properties_from_schema(schema, catalog)
     singer.write_schema('deal_pipelines', schema, ['pipelineId'], catalog.get('stream_alias'))
     LOGGER.info('sync_deal_pipelines')
     data = request(get_url('deal_pipelines')).json()
