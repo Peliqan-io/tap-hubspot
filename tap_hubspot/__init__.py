@@ -457,7 +457,7 @@ def peliqan_remove_unselected_properties_from_schema(schema, catalog):
         for mdata in catalog["metadata"]:
             if len(mdata["breadcrumb"])>0 and mdata["breadcrumb"][1]==prop:
                 found = True
-                if not mdata["metadata"]["selected"]:
+                if not "selected" in mdata["metadata"] or not mdata["metadata"]["selected"]:
                     del schema["properties"][prop]
         if not found:
             LOGGER.info("Property not found in catalog: %s" % prop)
