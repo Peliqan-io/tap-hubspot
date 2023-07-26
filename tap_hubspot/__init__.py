@@ -1175,6 +1175,8 @@ def main_impl():
         do_discover()
     elif args.properties:
         do_sync(STATE, args.properties)
+    elif args.catalog:
+        do_sync(STATE, args.catalog.to_dict())
     else:
         LOGGER.info("No properties were selected")
 
