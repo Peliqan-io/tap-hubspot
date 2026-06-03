@@ -1,0 +1,11 @@
+{
+  "companies": [
+    "current_sync_start",
+    "offset",
+    "property_hs_lastmodifieddate"
+  ],
+  "contacts": [
+    "offset",
+    "versionTimestamp"
+  ]
+}
