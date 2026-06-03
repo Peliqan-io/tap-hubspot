@@ -12,8 +12,8 @@ setup(name='tap-hubspot',
       install_requires=[
           'attrs==16.3.0',
           "singer-python @ git+https://github.com/peliqan-io/singer-python@master",
-          'requests==2.20.0',
-          'backoff==1.8.0',
+          'requests>=2.28.0',
+          'backoff>=2.2.1',
           'requests_mock==1.3.0',
       ],
       extras_require= {
